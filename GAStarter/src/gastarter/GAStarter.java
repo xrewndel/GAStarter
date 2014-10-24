@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
  */
 public class GAStarter {
     private final static String version = "1.0\n";
+    
     private static ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
     private static String s = "java -jar GA.jar ga3.cfg ";
     private static int repeat = 3; // кол-во раз поторять тест с одинаковыми параметрами
