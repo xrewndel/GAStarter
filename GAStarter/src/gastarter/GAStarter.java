@@ -1,86 +1,80 @@
 package gastarter;
 
-import gastarter.ParamsParser.CMD;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
+ *
  * @author Andrew
  */
 public class GAStarter {
-    private final static String version = "2.0\n";
-    private static ExecutorService pool;
-    private static ParamsParser params;
+    private final static String version = "1.0\n";
+    private static ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() - 1);
+    private static String s = "java -jar GA.jar ga3.cfg ";
+    private static int repeat = 3; // кол-во раз поторять тест с одинаковыми параметрами
+    /* Конфиг:
+     * ga.cfg [1] [2] [3] [4] [5] [6]
+     * где:
+     * [1] - кроссовер. 1 - да, 0 - нет
+     * [2] - мутация. 1 - да, 0 - нет
+     * [3] - кол-во файлов
+     * [4] - процент перекрестного использования файлов в задачах
+     * [5] - процент кроссоверов целое, 10-40
+     * [6] - процент мутаций (целое) 
+     * Пример: ga.cfg 1 1 600 20 40 4
+    */
     
     public static void main(String[] args) throws InterruptedException {
-        System.out.println("Version: " + version);
-        if (args.length == 0) {
-            ParamsParser.help();
+        System.out.println(version);
+        //DecimalFormat df = format();
+        if (args.length < 8) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("java -jar GAStarter.jar [0] [1] [2] [3] [4] [5] [6] [7] [8]\n");
+            sb.append("where:\n").append("[0] - repeat\n");
+            sb.append("[1] - work files\n");
+            sb.append("[2] - crossover start\n");
+            sb.append("[3] - crossover step\n");
+            sb.append("[4] - crossover end\n");
+            sb.append("[5] - mutation start\n");
+            sb.append("[6] - mutation step\n");
+            sb.append("[7] - mutation end\n");
+            sb.append("[8] - test (1 or 0). If test - just print task\n");
+            sb.append("Example: java -jar StarterGA.jar 3 300 10 10 50 1 3 10\n");
+            sb.append("will exec on 300 files, cross from 10 to 50 by 10, mutate from 1 to 10 by 3, repeate each task 3 times");
+            System.out.println(sb);
             System.exit(1);
         }
         
-        params = new ParamsParser(args);
-        pool = Executors.newFixedThreadPool(params.cpu);
-        System.out.print("Cores: " + Runtime.getRuntime().availableProcessors() + "\n");
+        System.out.print("Core: " + Runtime.getRuntime().availableProcessors() + "\n");
+        //String cmd = "java -jar GA.jar ga3.cfg 1 1 600 20 40 4";
+        repeat = Integer.valueOf(args[0]);
+        int files       = Integer.valueOf(args[1]);
+        int crossStart  = Integer.valueOf(args[2]);
+        int crossStep   = Integer.valueOf(args[3]);
+        int crossEnd    = Integer.valueOf(args[4]);
+        int mutateStart = Integer.valueOf(args[5]);
+        int mutateStep  = Integer.valueOf(args[6]);
+        int mutateEnd   = Integer.valueOf(args[7]);
+        boolean test = false;
+        if (args.length == 9) test = args[8].equals("1");
+        System.out.println("test: " + test);
         
-        // формируем неизменную часть строки запуска
-        String begin = params.fixed();
-        if (params.crossAndMutate()) {
-            for (int cross = params.crossBegin; cross < params.crossEnd; cross += params.crossStep) {
-                for (int mutate = params.crossBegin; mutate <= params.mutateEnd; mutate += params.mutateStep) {
-                    String cmd = begin + CMD.f.cmd(params.files) + CMD.cp.cmd(cross) + CMD.mp.cmd(mutate);
-                    mutation(cmd);
-                    //execute(cmd);
-                }
-            }
-        }
-        else if (params.crossover()) {
-            for (int cross = params.crossBegin; cross < params.crossEnd; cross += params.crossStep) {
-                String cmd = begin + CMD.f.cmd(params.files) + CMD.cp.cmd(cross) + CMD.m.cmd(params.mutation); 
-                execute(cmd);
-            }
-        }
-        else if (params.mutation()) {
-            mutation(begin);
-        }
-        
-        pool.shutdown();
-    }
-    
-    private static void mutation(String begin) {
-        if(params.fr() && params.wr()) {
-                for (int freeRate = params.frb; freeRate < params.fre; freeRate += params.frs) {
-                    for (int wasteRate = params.wrb; wasteRate <= params.wre; wasteRate += params.wrs) {
-                        String cmd = begin + CMD.fr.cmd(freeRate) + CMD.wr.cmd(wasteRate);
-                        execute(cmd);
+        //for (int file = fileStart; file < fileEnd; file = file * fileFactor) {    }
+            for (int cross = crossStart; cross < crossEnd; cross += crossStep) {
+                for (int mutate = mutateStart; mutate <= mutateEnd; mutate += mutateStep) {
+                    for (int i = 0; i< repeat; i++) {
+                        //String cmd = s + " " + 1 + " " + 1 + " " + fileStart + " 20 " + df.format(cross) + " " + mutate; 
+                        String cmd = s + " " + 1 + " " + 1 + " " + files + " 20 " + cross + " " + mutate; 
+                        Runnable task = new Task(cmd, test);
+                        pool.execute(task);
+                        Thread.sleep(1000);
                     }
                 }
             }
-            else if(params.fr() && !params.wr()) {
-                for (int freeRate = params.frb; freeRate < params.fre; freeRate += params.frs) {
-                    String cmd = begin + CMD.fr.cmd(freeRate);
-                    execute(cmd);
-                }
-            }
-            else if(!params.fr() && params.wr()) {
-                for (int wasteRate = params.wrb; wasteRate <= params.wre; wasteRate += params.wrs) {
-                    String cmd = begin + CMD.wr.cmd(wasteRate);
-                    execute(cmd);
-                }
-            }
-    }
-    
-    private static void execute(String exec) {
-        for (int i = 0; i < params.repeat; i++) {
-            Runnable task = new Task(exec, params.test);
-            pool.execute(task);
-            if (!params.test) try { Thread.sleep(1001); } catch (InterruptedException ex) {
-                System.out.println(ex);
-                ex.printStackTrace();
-            }
-        }
+        
+        pool.shutdown();
     }
     
     private static DecimalFormat format() {
@@ -88,9 +82,5 @@ public class GAStarter {
         decimalFormatSymbols.setDecimalSeparator('.');
         //decimalFormatSymbols.setGroupingSeparator(',');
         return new DecimalFormat("#,#0.0", decimalFormatSymbols);
-    }
-    
-    private static String round(double value) {
-        return "" + Math.round(value * 100.0 ) / 100.0;
     }
 }
