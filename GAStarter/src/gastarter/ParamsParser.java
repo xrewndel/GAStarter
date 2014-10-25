@@ -33,7 +33,8 @@ import java.util.Map;
 public class ParamsParser {
     // по умолчанию все отключено
     public int cpu = Runtime.getRuntime().availableProcessors() - 2;
-    public static String begin = "java -jar GA.jar -o 0"; // -o 0 = no print to console extra data
+    public static String begin = "";
+    public static String jar = "GA.jar";
     public final String cfgDefault = "ga3.cfg";
     public String cfg = "ga3.cfg";
     public int crossover = 0;
@@ -79,6 +80,7 @@ public class ParamsParser {
         for (String param : paramsMap.keySet()) {
             switch(param) {
                 case "cfg": cfg = paramsMap.get(param);
+                case "jar":         jar = paramsMap.get(param);                          break;
                 case "crossover":   crossover = Integer.valueOf(paramsMap.get(param));   break;
                 case "mutation":    mutation = Integer.valueOf(paramsMap.get(param));    break;
                 case "files":       files = Integer.valueOf(paramsMap.get(param));       break;
@@ -109,6 +111,7 @@ public class ParamsParser {
         }
         
         validate();
+        begin = "java -jar " + jar + " -o 0"; // -o 0 = no print to console extra data
     }
     
     public boolean crossover()      { return crossover == 1 && mutation == 0; }
