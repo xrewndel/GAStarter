@@ -1,7 +1,6 @@
 package gastarter;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -76,47 +75,6 @@ public class ParamsParser {
         
         //System.out.println(config.asMap());
                 
-        //if (args.length % 2 > 0) throw new RuntimeException("Every param must has its value");
-        /*
-        for (int param = 0; param < args.length; param++) {
-            CMD cmd = CMD.fromString(args[param]);
-            String val = "";
-            try { val = args[param + 1]; } catch (Exception ex) {}
-            switch(cmd) {
-                case h:     help();                             break;
-                case cfg:   cfg = val;                          break;
-                case c:     crossover = Integer.valueOf(val);   break;
-                case m:     mutation = Integer.valueOf(val);    break;
-                case f:     files = Integer.valueOf(val);       break;
-                case p:     population = Integer.valueOf(val);  break;
-                case g:     generation = Integer.valueOf(val);  break;
-                case l:     limit = Integer.valueOf(val);       break;
-                case r:     repeat = Integer.valueOf(val);      break;
-                case cb:    crossBegin = Integer.valueOf(val);  break;
-                case cs:    crossStep = Integer.valueOf(val);   break;
-                case ce:    crossEnd = Integer.valueOf(val);    break;
-                case mb:    mutateBegin = Integer.valueOf(val); break;
-                case ms:    mutateStep = Integer.valueOf(val);  break;
-                case me:    mutateEnd = Integer.valueOf(val);   break;
-                case frb:   frb = Integer.valueOf(val);         break;
-                case frs:   frs = Integer.valueOf(val);         break;
-                case fre:   fre = Integer.valueOf(val);         break;
-                case wrb:   wrb = Integer.valueOf(val);         break;
-                case wrs:   wrs = Integer.valueOf(val);         break;
-                case wre:   wre = Integer.valueOf(val);         break;
-                case wr:    wrb = frb; wrs = frs; wre = fre;    break;  // копируем интервал
-                case t:     test = val.equals("1");             break;
-                case cpu:   cpu = Integer.valueOf(val);         break;
-                
-                default: {
-                    System.out.println("Paramter \"" + args[param] + "\" is unknown");
-                    System.exit(1);
-                }
-            }
-            param++;
-        }
-        */
-        
         Map<String, String> paramsMap = config.asMap();
         for (String param : paramsMap.keySet()) {
             switch(param) {

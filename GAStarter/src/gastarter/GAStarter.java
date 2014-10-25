@@ -29,7 +29,7 @@ public class GAStarter {
         String begin = params.fixed();
         if (params.crossAndMutate()) {
             for (int cross = params.crossBegin; cross < params.crossEnd; cross += params.crossStep) {
-                for (int mutate = params.crossBegin; mutate <= params.mutateEnd; mutate += params.mutateStep) {
+                for (int mutate = params.mutateBegin; mutate <= params.mutateEnd; mutate += params.mutateStep) {
                     String cmd = begin + CMD.f.cmd(params.files) + CMD.cp.cmd(cross) + CMD.mp.cmd(mutate);
                     mutation(cmd);
                     //execute(cmd);
