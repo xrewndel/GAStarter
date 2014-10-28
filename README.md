@@ -1,0 +1,3 @@
+GAStarter
+=========
+Arguments: gastarter.cfg
