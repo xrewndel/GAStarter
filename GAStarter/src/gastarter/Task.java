@@ -1,5 +1,6 @@
 package gastarter;
 
+import static gastarter.GAStarter.println;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,7 +17,7 @@ public class Task implements Runnable {
     public Task(String command, boolean tst) { cmd = command; test = tst; }
     
     @Override public void run() {
-        System.out.println("Task " + id.incrementAndGet() + ". " + cmd);
+        println("Task " + id.incrementAndGet() + ". " + cmd);
         //System.out.println(cmd);
         
         if (!test)

@@ -10,12 +10,12 @@ import java.util.concurrent.Executors;
  * @author Andrew
  */
 public class GAStarter {
-    private final static String version = "2.0\n";
+    private final static String version = "2.1";
     private static ExecutorService pool;
     private static ParamsParser params;
     
     public static void main(String[] args) throws InterruptedException {
-        System.out.println("Version: " + version);
+        System.out.println("Version: " + version + "\n");
         if (args.length == 0) {
             ParamsParser.help();
             System.exit(1);
@@ -23,7 +23,7 @@ public class GAStarter {
         
         params = new ParamsParser(args);
         pool = Executors.newFixedThreadPool(params.cpu);
-        System.out.print("Cores: " + Runtime.getRuntime().availableProcessors() + "\n");
+        println("Cores: " + Runtime.getRuntime().availableProcessors());
         
         // формируем неизменную часть строки запуска
         String begin = params.fixed();
@@ -60,13 +60,15 @@ public class GAStarter {
             }
             else if(params.fr() && !params.wr()) {
                 for (int freeRate = params.frb; freeRate < params.fre; freeRate += params.frs) {
-                    String cmd = begin + CMD.fr.cmd(freeRate);
+                    //String cmd = begin + CMD.fr.cmd(freeRate);
+                    String cmd = begin + CMD.fr.cmd(freeRate) + CMD.wr.cmd(params.wrs);
                     execute(cmd);
                 }
             }
             else if(!params.fr() && params.wr()) {
                 for (int wasteRate = params.wrb; wasteRate <= params.wre; wasteRate += params.wrs) {
-                    String cmd = begin + CMD.wr.cmd(wasteRate);
+                    //String cmd = begin + CMD.wr.cmd(wasteRate);
+                    String cmd = begin + CMD.fr.cmd(params.frb) + CMD.wr.cmd(wasteRate);
                     execute(cmd);
                 }
             }
@@ -93,4 +95,6 @@ public class GAStarter {
     private static String round(double value) {
         return "" + Math.round(value * 100.0 ) / 100.0;
     }
+    
+    public static void println(String s) { System.out.println("[GAStarter " + version + "] " + s); }
 }
