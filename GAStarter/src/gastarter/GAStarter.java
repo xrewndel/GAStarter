@@ -61,7 +61,7 @@ public class GAStarter {
             else if(params.fr() && !params.wr()) {
                 for (int freeRate = params.frb; freeRate < params.fre; freeRate += params.frs) {
                     //String cmd = begin + CMD.fr.cmd(freeRate);
-                    String cmd = begin + CMD.fr.cmd(freeRate) + CMD.wr.cmd(params.wrs);
+                    String cmd = begin + CMD.fr.cmd(freeRate) + CMD.wr.cmd(params.wrb);
                     execute(cmd);
                 }
             }
