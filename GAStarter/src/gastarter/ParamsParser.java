@@ -37,6 +37,7 @@ public class ParamsParser {
     public static String jar = "GA.jar";
     public final String cfgDefault = "ga3.cfg";
     public String cfg = "ga3.cfg";
+    public boolean replicaFixed = true;
     public int crossover = 0;
     public int mutation = 0; 
     public int population = 50;
@@ -103,6 +104,7 @@ public class ParamsParser {
                 case "wr":          wrb = frb; wrs = frs; wre = fre;                     break;  // копируем интервал
                 case "test":        test = Boolean.valueOf(paramsMap.get(param));        break;
                 case "cpu":         cpu = Integer.valueOf(paramsMap.get(param));         break;
+                case "replicaFix":  replicaFixed = Boolean.valueOf(paramsMap.get(param));break;
                 default: {
                     System.out.println("Paramter \"" + param + "\" is unknown");
                     System.exit(1);
@@ -128,7 +130,8 @@ public class ParamsParser {
         sb.append(CMD.c.cmd(crossover));
         sb.append(CMD.m.cmd(mutation));
         sb.append(CMD.l.cmd(limit));
-        if (mutateBegin == mutateEnd)  sb.append(CMD.mp.cmd(mutateBegin));
+        if (mutateBegin == mutateEnd) sb.append(CMD.mp.cmd(mutateBegin));
+        if (!replicaFixed) sb.append(CMD.fix.cmd(0));
         
          return sb.toString();
     }
@@ -183,6 +186,7 @@ public class ParamsParser {
         fr("-fr", ""), // freeRate
         wr("-wr", ""), // wasteRate
         l("-l", "\n\t limit. Track fitness change over n generetion"),
+        fix("-fix", "\n\t is replica fixed"),
         
         // GA Starter
         r("-r", "\n\t-r repeat"),
