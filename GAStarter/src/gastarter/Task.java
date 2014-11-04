@@ -4,6 +4,7 @@ import static gastarter.GAStarter.println;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -17,8 +18,8 @@ public class Task implements Runnable {
     public Task(String command, boolean tst) { cmd = command; test = tst; }
     
     @Override public void run() {
-        println("Task " + id.incrementAndGet() + ". " + cmd);
-        //System.out.println(cmd);
+        DecimalFormat fmt = new DecimalFormat("0000");
+        println("Task " + fmt.format(id.incrementAndGet()) + ". " + cmd);
         
         if (!test)
         try {
