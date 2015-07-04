@@ -62,6 +62,8 @@ public class ParamsParser {
     public int wrs = 0;
     public int wre = 0;
     
+    public double net = 0;
+    
     public boolean test = false;
     
     public ParamsParser (String[] args) {
@@ -104,6 +106,7 @@ public class ParamsParser {
                 case "wr":          wrb = frb; wrs = frs; wre = fre;                     break;  // копируем интервал
                 case "test":        test = Boolean.valueOf(paramsMap.get(param));        break;
                 case "cpu":         cpu = Integer.valueOf(paramsMap.get(param));         break;
+                case "net":         net = Double.valueOf(paramsMap.get(param));          break;
                 case "replicaFix":  replicaFixed = Boolean.valueOf(paramsMap.get(param));break;
                 default: {
                     System.out.println("Paramter \"" + param + "\" is unknown");
@@ -132,6 +135,7 @@ public class ParamsParser {
         sb.append(CMD.l.cmd(limit));
         if (mutateBegin == mutateEnd) sb.append(CMD.mp.cmd(mutateBegin));
         if (!replicaFixed) sb.append(CMD.fix.cmd(0));
+        if (net > 0) sb.append(CMD.net.cmd(net));
         
          return sb.toString();
     }
@@ -189,23 +193,24 @@ public class ParamsParser {
         fix("-fix", "\n\t is replica fixed"),
         
         // GA Starter
-        r("-r", "\n\t-r repeat"),
-        cb("-cb", "\n\n\t-cb crossover begin(start)"),
-        cs("-cs", "\n\t-cs crossover step"),
-        ce("-ce", "\n\t-ce crossover end"),
-        mb("-mb", "\n\n\t-mb mutation begin(start)"),
-        ms("-ms", "\n\t-ms mutation step"),
-        me("-me", "\n\t-me mutation end"),
+        r("-r",     "\n\t-r repeat"),
+        cb("-cb",   "\n\n\t-cb crossover begin(start)"),
+        cs("-cs",   "\n\t-cs crossover step"),
+        ce("-ce",   "\n\t-ce crossover end"),
+        mb("-mb",   "\n\n\t-mb mutation begin(start)"),
+        ms("-ms",   "\n\t-ms mutation step"),
+        me("-me",   "\n\t-me mutation end"),
         frb("-frb", "\n\n\t-frb mutation free rate begin"),
         frs("-frs", "\n\t-frs mutation free rate step"),
         fre("-fre", "\n\t-fre mutation free rate end"),
         wrb("-wrb", "\n\n\t-wrb mutation waste rate begin"),
         wrs("-wrs", "\n\t-wrs mutation waste rate step"),
         wre("-wre", "\n\t-wre mutation waste rate end"),
-        t("-t", "\n\n\t-t test"),
+        t("-t",     "\n\n\t-t test"),
         cpu("-cpu", "\n\t number of cpu"),
-        h("-h", ""),
-        undef ("", "");
+        net("-nc",  "\n\t network coefficient"),
+        h("-h",     ""),
+        undef ("",  "");
         
         private final String name;
         private final String hlp;
@@ -223,7 +228,8 @@ public class ParamsParser {
         
         //public String hlp() { return hlp; }
         public String cmd(String value) { return " " + name + " " + value; }
-        public String cmd(int value) { return cmd("" + value); }
+        public String cmd(int value)    { return cmd("" + value); }
+        public String cmd(double value) { return cmd("" + value); }
         public String param() { return name; }
     }
 }

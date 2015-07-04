@@ -51,7 +51,7 @@ public class GAStarter {
     
     private static void mutation(String begin) {
         if(params.fr() && params.wr()) {
-                for (int freeRate = params.frb; freeRate < params.fre; freeRate += params.frs) {
+                for (int freeRate = params.frb; freeRate <= params.fre; freeRate += params.frs) {
                     for (int wasteRate = params.wrb; wasteRate <= params.wre; wasteRate += params.wrs) {
                         String cmd = begin + CMD.fr.cmd(freeRate) + CMD.wr.cmd(wasteRate);
                         execute(cmd);
