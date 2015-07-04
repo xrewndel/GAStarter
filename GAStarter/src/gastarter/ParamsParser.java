@@ -45,6 +45,7 @@ public class ParamsParser {
     public int files = 300;
     public int repeat = 3;
     public int limit = 100;
+    public float timeCoeff = 0.0f;
     
     public int crossBegin = 0;
     public int crossStep = 1;
@@ -63,6 +64,7 @@ public class ParamsParser {
     public int wre = 0;
     
     public double net = 0;
+    public String experiment = "ExperimentName";
     
     public boolean test = false;
     
@@ -90,6 +92,7 @@ public class ParamsParser {
                 case "population":  population = Integer.valueOf(paramsMap.get(param));  break;
                 case "generation":  generation = Integer.valueOf(paramsMap.get(param));  break;
                 case "limit":       limit = Integer.valueOf(paramsMap.get(param));       break;
+                case "timeCoeff":   timeCoeff = Float.valueOf(paramsMap.get(param));     break;
                 case "repeat":      repeat = Integer.valueOf(paramsMap.get(param));      break;
                 case "crossBegin":  crossBegin = Integer.valueOf(paramsMap.get(param));  break;
                 case "crossStep":   crossStep = Integer.valueOf(paramsMap.get(param));   break;
@@ -107,6 +110,7 @@ public class ParamsParser {
                 case "test":        test = Boolean.valueOf(paramsMap.get(param));        break;
                 case "cpu":         cpu = Integer.valueOf(paramsMap.get(param));         break;
                 case "net":         net = Double.valueOf(paramsMap.get(param));          break;
+                case "experiment":  experiment = paramsMap.get(param);                   break;
                 case "replicaFix":  replicaFixed = Boolean.valueOf(paramsMap.get(param));break;
                 default: {
                     System.out.println("Paramter \"" + param + "\" is unknown");
@@ -133,8 +137,10 @@ public class ParamsParser {
         sb.append(CMD.c.cmd(crossover));
         sb.append(CMD.m.cmd(mutation));
         sb.append(CMD.l.cmd(limit));
+        sb.append(CMD.exp.cmd(experiment));
         if (mutateBegin == mutateEnd) sb.append(CMD.mp.cmd(mutateBegin));
         if (!replicaFixed) sb.append(CMD.fix.cmd(0));
+        if (timeCoeff > 0) sb.append(CMD.tc.cmd(timeCoeff));
         if (net > 0) sb.append(CMD.net.cmd(net));
         
          return sb.toString();
@@ -180,17 +186,20 @@ public class ParamsParser {
     public enum CMD { 
         //GA
         cfg("-cfg", "\n\t-cfg file.cfg"),
-        c("-c", "\n\t-c crossover"),
-        m("-m", "\n\t-m mutation"),
-        f("-f", "\n\t-f files"),
-        p("-p", "\n\t-p populatio"),
-        g("-g", "\n\t-g generations"),
-        cp("-cp", ""), // crossRate
-        mp("-mp", ""), // mutateRate
-        fr("-fr", ""), // freeRate
-        wr("-wr", ""), // wasteRate
-        l("-l", "\n\t limit. Track fitness change over n generetion"),
+        c("-c",     "\n\t-c crossover"),
+        m("-m",     "\n\t-m mutation"),
+        f("-f",     "\n\t-f files"),
+        p("-p",     "\n\t-p populatio"),
+        g("-g",     "\n\t-g generations"),
+        cp("-cp",   ""), // crossRate
+        mp("-mp",   ""), // mutateRate
+        fr("-fr",   ""), // freeRate
+        wr("-wr",   ""), // wasteRate
+        l("-l",     "\n\t limit. Track fitness change over n generetion"),
         fix("-fix", "\n\t is replica fixed"),
+        tc("-tc",   ""), // timeCoeff
+        net("-nc",  "\n\t network coefficient"),
+        exp("-exp",  "\n\t experiment name"),
         
         // GA Starter
         r("-r",     "\n\t-r repeat"),
@@ -208,7 +217,6 @@ public class ParamsParser {
         wre("-wre", "\n\t-wre mutation waste rate end"),
         t("-t",     "\n\n\t-t test"),
         cpu("-cpu", "\n\t number of cpu"),
-        net("-nc",  "\n\t network coefficient"),
         h("-h",     ""),
         undef ("",  "");
         
