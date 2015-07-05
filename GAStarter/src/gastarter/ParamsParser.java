@@ -38,6 +38,7 @@ public class ParamsParser {
     public final String cfgDefault = "ga3.cfg";
     public String cfg = "ga3.cfg";
     public boolean replicaFixed = true;
+    public int debug = 0;
     public int crossover = 0;
     public int mutation = 0; 
     public int population = 50;
@@ -65,7 +66,8 @@ public class ParamsParser {
     
     public double net = 0;
     public String experiment = "ExperimentName";
-    
+    public int changeSpeed = 0;
+     
     public boolean test = false;
     
     public ParamsParser (String[] args) {
@@ -110,6 +112,8 @@ public class ParamsParser {
                 case "test":        test = Boolean.valueOf(paramsMap.get(param));        break;
                 case "cpu":         cpu = Integer.valueOf(paramsMap.get(param));         break;
                 case "net":         net = Double.valueOf(paramsMap.get(param));          break;
+                case "changeSpeed": changeSpeed = Integer.valueOf(paramsMap.get(param)); break;
+                case "debug":       debug = Integer.valueOf(paramsMap.get(param));       break;
                 case "experiment":  experiment = paramsMap.get(param);                   break;
                 case "replicaFix":  replicaFixed = Boolean.valueOf(paramsMap.get(param));break;
                 default: {
@@ -133,7 +137,7 @@ public class ParamsParser {
     public String fixed() {
         StringBuilder sb = new StringBuilder();
         sb.append(begin);
-        if (!cfg.equals(cfgDefault)) sb.append(CMD.cfg.cmd(cfg));
+        //if (!cfg.equals(cfgDefault)) sb.append(CMD.cfg.cmd(cfg));             // no config anymore
         sb.append(CMD.c.cmd(crossover));
         sb.append(CMD.m.cmd(mutation));
         sb.append(CMD.l.cmd(limit));
@@ -142,6 +146,8 @@ public class ParamsParser {
         if (!replicaFixed) sb.append(CMD.fix.cmd(0));
         if (timeCoeff > 0) sb.append(CMD.tc.cmd(timeCoeff));
         if (net > 0) sb.append(CMD.net.cmd(net));
+        if (changeSpeed > 0) sb.append(CMD.cspd.cmd(changeSpeed));
+        if (debug > 0) sb.append(CMD.debug.cmd(debug));
         
          return sb.toString();
     }
@@ -185,21 +191,23 @@ public class ParamsParser {
     
     public enum CMD { 
         //GA
-        cfg("-cfg", "\n\t-cfg file.cfg"),
-        c("-c",     "\n\t-c crossover"),
-        m("-m",     "\n\t-m mutation"),
-        f("-f",     "\n\t-f files"),
-        p("-p",     "\n\t-p populatio"),
-        g("-g",     "\n\t-g generations"),
-        cp("-cp",   ""), // crossRate
-        mp("-mp",   ""), // mutateRate
-        fr("-fr",   ""), // freeRate
-        wr("-wr",   ""), // wasteRate
-        l("-l",     "\n\t limit. Track fitness change over n generetion"),
-        fix("-fix", "\n\t is replica fixed"),
-        tc("-tc",   ""), // timeCoeff
-        net("-nc",  "\n\t network coefficient"),
-        exp("-exp",  "\n\t experiment name"),
+        cfg("-cfg",     "\n\t-cfg file.cfg"),
+        c("-c",         "\n\t-c crossover"),
+        m("-m",         "\n\t-m mutation"),
+        f("-f",         "\n\t-f files"),
+        p("-p",         "\n\t-p populatio"),
+        g("-g",         "\n\t-g generations"),
+        cp("-cp",       ""), // crossRate
+        mp("-mp",       ""), // mutateRate
+        fr("-fr",       ""), // freeRate
+        wr("-wr",       ""), // wasteRate
+        l("-l",         "\n\t limit. Track fitness change over n generetion"),
+        fix("-fix",     "\n\t is replica fixed"),
+        tc("-tc",       ""), // timeCoeff
+        net("-nc",      "\n\t network coefficient"),
+        cspd("-cspd",   "\n\t network coefficient"),
+        debug("-dbg",   "\n\t debug etra info"),
+        exp("-exp",     "\n\t experiment name"),
         
         // GA Starter
         r("-r",     "\n\t-r repeat"),

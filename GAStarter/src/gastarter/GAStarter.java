@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
  * @author Andrew
  */
 public class GAStarter {
-    private final static String version = "2.4";
+    private final static String version = "2.5";
     private static ExecutorService pool;
     private static ParamsParser params;
     
