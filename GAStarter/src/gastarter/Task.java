@@ -1,5 +1,6 @@
 package gastarter;
 
+import static gastarter.GAStarter.log;
 import static gastarter.GAStarter.println;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,14 +13,15 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Andrew
  */
 public class Task implements Runnable {
-    private final static AtomicInteger id = new AtomicInteger(0);
     private final String cmd;
     private final boolean test;
-    public Task(String command, boolean tst) { cmd = command; test = tst; }
+    private final int id;
+    public Task(String command, boolean tst, int _id) { cmd = command; test = tst; id = _id;}
     
     @Override public void run() {
         DecimalFormat fmt = new DecimalFormat("0000");
-        println("Task " + fmt.format(id.incrementAndGet()) + ". " + cmd);
+        println("Task " + fmt.format(id) + ". " + cmd);
+        log.info("Task " + fmt.format(id) + "[" + GAStarter.totalExec + "]. " + cmd);
         
         if (!test)
         try {

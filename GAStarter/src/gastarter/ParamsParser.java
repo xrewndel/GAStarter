@@ -66,7 +66,8 @@ public class ParamsParser {
     
     public double net = 0;
     public String experiment = "ExperimentName";
-    public int changeSpeed = 0;
+    public Triple<Integer, Integer, Integer> changeSpeed = new Triple(1,1,1);
+    public int sleep = 1001;
      
     public boolean test = false;
     
@@ -112,10 +113,11 @@ public class ParamsParser {
                 case "test":        test = Boolean.valueOf(paramsMap.get(param));        break;
                 case "cpu":         cpu = Integer.valueOf(paramsMap.get(param));         break;
                 case "net":         net = Double.valueOf(paramsMap.get(param));          break;
-                case "changeSpeed": changeSpeed = Integer.valueOf(paramsMap.get(param)); break;
+                case "changeSpeed": changeSpeed = parser(paramsMap.get(param));          break;
                 case "debug":       debug = Integer.valueOf(paramsMap.get(param));       break;
                 case "experiment":  experiment = paramsMap.get(param);                   break;
                 case "replicaFix":  replicaFixed = Boolean.valueOf(paramsMap.get(param));break;
+                case "sleep":       sleep = Integer.valueOf(paramsMap.get(param));       break;
                 default: {
                     System.out.println("Paramter \"" + param + "\" is unknown");
                     System.exit(1);
@@ -134,7 +136,7 @@ public class ParamsParser {
     public boolean wr() { return wrb > 0 && wre > 0; }
     public boolean cross() { return crossBegin > 0 && crossEnd > 0; }
     public boolean mutate() { return mutateBegin > 0 && mutateEnd > 0; }
-    public String fixed() {
+    public String fixed(int speed) {
         StringBuilder sb = new StringBuilder();
         sb.append(begin);
         //if (!cfg.equals(cfgDefault)) sb.append(CMD.cfg.cmd(cfg));             // no config anymore
@@ -144,13 +146,21 @@ public class ParamsParser {
         sb.append(CMD.exp.cmd(experiment));
         if (mutateBegin == mutateEnd) sb.append(CMD.mp.cmd(mutateBegin));
         if (!replicaFixed) sb.append(CMD.fix.cmd(0));
-        if (timeCoeff > 0) sb.append(CMD.tc.cmd(timeCoeff));
+        //if (timeCoeff > 0) sb.append(CMD.tc.cmd(timeCoeff));
         if (net > 0) sb.append(CMD.net.cmd(net));
-        if (changeSpeed > 0) sb.append(CMD.cspd.cmd(changeSpeed));
+        if (speed > 0) sb.append(CMD.cspd.cmd(speed));
         if (debug > 0) sb.append(CMD.debug.cmd(debug));
         
          return sb.toString();
     }
+    
+    private Triple<Integer, Integer, Integer> parser(String s) {
+        String[] str = s.split(",");
+        if (str.length != 3) throw new Error("Invalid format for " + s);
+        
+        return new Triple(Integer.valueOf(str[0]), Integer.valueOf(str[1]), Integer.valueOf(str[2]));
+    }
+    
     private void validate() {
         if (files < 0) throw new RuntimeException(CMD.f.param() + " < 0");
         if (population < 0) throw new RuntimeException(CMD.p.param() + " < 0");
