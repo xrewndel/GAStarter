@@ -35,7 +35,7 @@ public class ParamsParser {
     public int cpu = Runtime.getRuntime().availableProcessors() - 2;
     public static String begin = "";
     public static String jar = "GA.jar";
-    public final String cfgDefault = "ga3.cfg";
+    //public final String cfgDefault = "ga3.cfg";
     public String cfg = "ga3.cfg";
     public boolean replicaFixed = true;
     public int debug = 0;
@@ -48,26 +48,16 @@ public class ParamsParser {
     public int limit = 100;
     public float timeCoeff = 0.0f;
     
-    public int crossBegin = 0;
-    public int crossStep = 1;
-    public int crossEnd = 0;
-    
-    public int mutateBegin = 0;
-    public int mutateStep = 1;
-    public int mutateEnd = 0;
-    
-    public int frb = 0;
-    public int frs = 0;
-    public int fre = 0;
-    
-    public int wrb = 0;
-    public int wrs = 0;
-    public int wre = 0;
-    
-    public double net = 0;
-    public String experiment = "ExperimentName";
+    public Triple<Integer, Integer, Integer> cross = new Triple(0,1,0);
+    public Triple<Integer, Integer, Integer> mutate = new Triple(0,1,0);
+    public Triple<Integer, Integer, Integer> fr = new Triple(0,0,0);
+    public Triple<Integer, Integer, Integer> wr = new Triple(0,0,0);
     public Triple<Integer, Integer, Integer> changeSpeed = new Triple(1,1,1);
+    public Triple<Integer, Integer, Integer> net = new Triple(0,1,0);
+    //public double net = 0;
+    
     public int sleep = 1001;
+    public String experiment = "ExperimentName";
      
     public boolean test = false;
     
@@ -97,22 +87,13 @@ public class ParamsParser {
                 case "limit":       limit = Integer.valueOf(paramsMap.get(param));       break;
                 case "timeCoeff":   timeCoeff = Float.valueOf(paramsMap.get(param));     break;
                 case "repeat":      repeat = Integer.valueOf(paramsMap.get(param));      break;
-                case "crossBegin":  crossBegin = Integer.valueOf(paramsMap.get(param));  break;
-                case "crossStep":   crossStep = Integer.valueOf(paramsMap.get(param));   break;
-                case "crossEnd":    crossEnd = Integer.valueOf(paramsMap.get(param));    break;
-                case "mutateBegin": mutateBegin = Integer.valueOf(paramsMap.get(param)); break;
-                case "mutateStep":  mutateStep = Integer.valueOf(paramsMap.get(param));  break;
-                case "mutateEnd":   mutateEnd = Integer.valueOf(paramsMap.get(param));   break;
-                case "frb":         frb = Integer.valueOf(paramsMap.get(param));         break;
-                case "frs":         frs = Integer.valueOf(paramsMap.get(param));         break;
-                case "fre":         fre = Integer.valueOf(paramsMap.get(param));         break;
-                case "wrb":         wrb = Integer.valueOf(paramsMap.get(param));         break;
-                case "wrs":         wrs = Integer.valueOf(paramsMap.get(param));         break;
-                case "wre":         wre = Integer.valueOf(paramsMap.get(param));         break;
-                case "wr":          wrb = frb; wrs = frs; wre = fre;                     break;  // копируем интервал
+                case "cross":       cross = parser(paramsMap.get(param));                break;
+                case "mutate":      mutate = parser(paramsMap.get(param));               break;
+                case "fr":          fr = parser(paramsMap.get(param));                   break;
+                case "wr":          wr = parser(paramsMap.get(param));                   break;
                 case "test":        test = Boolean.valueOf(paramsMap.get(param));        break;
                 case "cpu":         cpu = Integer.valueOf(paramsMap.get(param));         break;
-                case "net":         net = Double.valueOf(paramsMap.get(param));          break;
+                case "net":         net = parser(paramsMap.get(param));                  break;
                 case "changeSpeed": changeSpeed = parser(paramsMap.get(param));          break;
                 case "debug":       debug = Integer.valueOf(paramsMap.get(param));       break;
                 case "experiment":  experiment = paramsMap.get(param);                   break;
@@ -132,11 +113,11 @@ public class ParamsParser {
     public boolean crossover()      { return crossover == 1 && mutation == 0; }
     public boolean mutation()       { return crossover == 0 && mutation == 1; }
     public boolean crossAndMutate() { return crossover == 1 && mutation == 1; }
-    public boolean fr() { return frb > 0 && fre > 0; }
-    public boolean wr() { return wrb > 0 && wre > 0; }
-    public boolean cross() { return crossBegin > 0 && crossEnd > 0; }
-    public boolean mutate() { return mutateBegin > 0 && mutateEnd > 0; }
-    public String fixed(int speed) {
+    public boolean fr() { return fr.begin > 0 && fr.end > 0; }
+    public boolean wr() { return wr.begin > 0 && wr.end > 0; }
+    public boolean cross() { return cross.begin > 0 && cross.end > 0; }
+    public boolean mutate() { return mutate.begin > 0 && mutate.end > 0; }
+    public String fixed(int speed, int network) {
         StringBuilder sb = new StringBuilder();
         sb.append(begin);
         //if (!cfg.equals(cfgDefault)) sb.append(CMD.cfg.cmd(cfg));             // no config anymore
@@ -144,10 +125,11 @@ public class ParamsParser {
         sb.append(CMD.m.cmd(mutation));
         sb.append(CMD.l.cmd(limit));
         sb.append(CMD.exp.cmd(experiment));
-        if (mutateBegin == mutateEnd) sb.append(CMD.mp.cmd(mutateBegin));
+        if (mutate.begin.equals(mutate.end)) sb.append(CMD.mp.cmd(mutate.begin));
         if (!replicaFixed) sb.append(CMD.fix.cmd(0));
         //if (timeCoeff > 0) sb.append(CMD.tc.cmd(timeCoeff));
-        if (net > 0) sb.append(CMD.net.cmd(net));
+        //if (net > 0) sb.append(CMD.net.cmd(net));
+        if (network > 0) sb.append(CMD.net.cmd(network));
         if (speed > 0) sb.append(CMD.cspd.cmd(speed));
         if (debug > 0) sb.append(CMD.debug.cmd(debug));
         
@@ -161,35 +143,40 @@ public class ParamsParser {
         return new Triple(Integer.valueOf(str[0]), Integer.valueOf(str[1]), Integer.valueOf(str[2]));
     }
     
+//    private Triple<Double, Double, Double> parseDbl(String s) {
+//        String[] str = s.split(",");
+//        if (str.length != 3) throw new Error("Invalid format for " + s);
+//        
+//        return new Triple(Double.valueOf(str[0]), Double.valueOf(str[1]), Double.valueOf(str[2]));
+//    }
+    
     private void validate() {
         if (files < 0) throw new RuntimeException(CMD.f.param() + " < 0");
         if (population < 0) throw new RuntimeException(CMD.p.param() + " < 0");
         if (generation < 0) throw new RuntimeException(CMD.g.param() + " < 0");
         if (repeat < 0) throw new RuntimeException(CMD.r.param() + " < 0");
         
-        if (crossBegin < 0) throw new RuntimeException(CMD.cb.param() + " < 0");
-        if (crossStep < 0) throw new RuntimeException(CMD.cs.param() + " < 0");
-        if (crossEnd < 0) throw new RuntimeException(CMD.ce.param() + " < 0");
-        if (crossEnd < crossBegin) throw new RuntimeException(CMD.ce.param() + " < " + CMD.cb.param());
-        //if (crossBegin > 0 && crossEnd > 0) crossover = 1;
+        if (cross.begin < 0) throw new RuntimeException(CMD.cb.param() + " < 0");
+        if (cross.step < 0) throw new RuntimeException(CMD.cs.param() + " < 0");
+        if (cross.end < 0) throw new RuntimeException(CMD.ce.param() + " < 0");
+        if (cross.end < cross.begin) throw new RuntimeException(CMD.ce.param() + " < " + CMD.cb.param());
         
-        if (mutateBegin < 0) throw new RuntimeException(CMD.mb.param() + " < 0");
-        if (mutateStep < 0) throw new RuntimeException(CMD.ms.param() + " < 0");
-        if (mutateEnd < 0) throw new RuntimeException(CMD.me.param() + " < 0");
-        if (mutateEnd < mutateBegin) throw new RuntimeException(CMD.me.param() + " < " + CMD.mb.param());
-        //if (mutateBegin > 0 && mutateEnd > 0) mutation = 1;
+        if (mutate.begin < 0) throw new RuntimeException(CMD.mb.param() + " < 0");
+        if (mutate.step < 0) throw new RuntimeException(CMD.ms.param() + " < 0");
+        if (mutate.end < 0) throw new RuntimeException(CMD.me.param() + " < 0");
+        if (mutate.end < mutate.begin) throw new RuntimeException(CMD.me.param() + " < " + CMD.mb.param());
         
-        if (frb < 0) throw new RuntimeException(CMD.frb.param() + " < 0");
-        if (frs < 0) throw new RuntimeException(CMD.frs.param() + " < 0");
-        if (fre < 0) throw new RuntimeException(CMD.fre.param() + " < 0");
-        if (fre < frb) throw new RuntimeException(CMD.fre.param() + " < " + CMD.frb.param());
-        if (fre > 0 && fre > 0) mutation = 1;
+        if (fr.begin < 0) throw new RuntimeException(CMD.frb.param() + " < 0");
+        if (fr.step < 0) throw new RuntimeException(CMD.frs.param() + " < 0");
+        if (fr.end < 0) throw new RuntimeException(CMD.fre.param() + " < 0");
+        if (fr.end < fr.begin) throw new RuntimeException(CMD.fre.param() + " < " + CMD.frb.param());
+        if (fr.begin > 0) mutation = 1;
         
-        if (wrb < 0) throw new RuntimeException(CMD.wrb.param() + " < 0");
-        if (wrs < 0) throw new RuntimeException(CMD.wrs.param() + " < 0");
-        if (wre < 0) throw new RuntimeException(CMD.wre.param() + " < 0");
-        if (wre < wrb) throw new RuntimeException(CMD.wre.param() + " < " + CMD.wrb.param());
-        if (wre > 0 && wre > 0) mutation = 1;
+        if (wr.begin < 0) throw new RuntimeException(CMD.wrb.param() + " < 0");
+        if (wr.step < 0) throw new RuntimeException(CMD.wrs.param() + " < 0");
+        if (wr.end < 0) throw new RuntimeException(CMD.wre.param() + " < 0");
+        if (wr.end < wr.begin) throw new RuntimeException(CMD.wre.param() + " < " + CMD.wrb.param());
+        if (wr.begin > 0) mutation = 1;
     }
     
     public final static void help() {

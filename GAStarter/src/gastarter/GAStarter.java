@@ -20,7 +20,7 @@ import org.apache.log4j.PatternLayout;
  * @author Andrew
  */
 public class GAStarter {
-    private final static String version = "2.6";
+    private final static String version = "2.7";
     private static ExecutorService pool;
     private static ParamsParser prm;
     public static int totalExec = 0;
@@ -42,22 +42,24 @@ public class GAStarter {
         log.info("Cores: " + Runtime.getRuntime().availableProcessors());
         
         for (int i = prm.changeSpeed.begin; i <= prm.changeSpeed.end; i += prm.changeSpeed.step) 
-            starter(true, i);
+            for (int net = prm.net.begin; net <= prm.net.end; net += prm.net.step)
+                starter(true, i, net);
         
         log.info("Total exec count: " + totalExec);
         
         for (int i = prm.changeSpeed.begin; i <= prm.changeSpeed.end; i += prm.changeSpeed.step) 
-            starter(false, i);
+            for (int net = prm.net.begin; net <= prm.net.end; net += prm.net.step)
+                starter(false, i, net);
         
         pool.shutdown();
     }
 
-    private static void starter(boolean idle, int changeSpeed) {
+    private static void starter(boolean idle, int changeSpeed, int net) {
         // формируем неизменную часть строки запуска
-        String begin = prm.fixed(changeSpeed);
+        String begin = prm.fixed(changeSpeed, net);
         if (prm.crossAndMutate()) {
-            for (int cross = prm.crossBegin; cross < prm.crossEnd; cross += prm.crossStep) {
-                for (int mutate = prm.mutateBegin; mutate <= prm.mutateEnd; mutate += prm.mutateStep) {
+            for (int cross = prm.cross.begin; cross < prm.cross.end; cross += prm.cross.step) {
+                for (int mutate = prm.mutate.begin; mutate <= prm.mutate.end; mutate += prm.mutate.step) {
                     String cmd = begin + CMD.f.cmd(prm.files) + CMD.cp.cmd(cross) + CMD.mp.cmd(mutate);
                     mutation(cmd, idle);
                     //execute(cmd);
@@ -65,7 +67,7 @@ public class GAStarter {
             }
         }
         else if (prm.crossover()) {
-            for (int cross = prm.crossBegin; cross < prm.crossEnd; cross += prm.crossStep) {
+            for (int cross = prm.cross.begin; cross < prm.cross.end; cross += prm.cross.step) {
                 String cmd = begin + CMD.f.cmd(prm.files) + CMD.cp.cmd(cross) + CMD.m.cmd(prm.mutation); 
                 execute(cmd, idle);
             }
@@ -79,24 +81,24 @@ public class GAStarter {
     
     private static void mutation(String begin, boolean idle) {
         if(prm.fr() && prm.wr()) {
-            for (int freeRate = prm.frb; freeRate < prm.fre; freeRate += prm.frs) {
-                for (int wasteRate = prm.wrb; wasteRate <= prm.wre; wasteRate += prm.wrs) {
+            for (int freeRate = prm.fr.begin; freeRate < prm.fr.end; freeRate += prm.fr.step) {
+                for (int wasteRate = prm.wr.begin; wasteRate <= prm.wr.end; wasteRate += prm.wr.step) {
                     String cmd = begin + CMD.fr.cmd(freeRate) + CMD.wr.cmd(wasteRate);
                     execute(cmd, idle);
                 }
             }
         }
         else if(prm.fr() && !prm.wr()) {
-            for (int freeRate = prm.frb; freeRate <= prm.fre; freeRate += prm.frs) {
+            for (int freeRate = prm.fr.begin; freeRate <= prm.fr.end; freeRate += prm.fr.step) {
                 //String cmd = begin + CMD.fr.cmd(freeRate);
-                String cmd = begin + CMD.fr.cmd(freeRate) + CMD.wr.cmd(prm.wrb);
+                String cmd = begin + CMD.fr.cmd(freeRate) + CMD.wr.cmd(prm.wr.begin);
                 execute(cmd, idle);
             }
         }
         else if(!prm.fr() && prm.wr()) {
-            for (int wasteRate = prm.wrb; wasteRate <= prm.wre; wasteRate += prm.wrs) {
+            for (int wasteRate = prm.wr.begin; wasteRate <= prm.wr.end; wasteRate += prm.wr.step) {
                 //String cmd = begin + CMD.wr.cmd(wasteRate);
-                String cmd = begin + CMD.fr.cmd(prm.frb) + CMD.wr.cmd(wasteRate);
+                String cmd = begin + CMD.fr.cmd(prm.fr.begin) + CMD.wr.cmd(wasteRate);
                 execute(cmd, idle);
             }
         }
