@@ -47,6 +47,8 @@ public class ParamsParser {
     public int repeat = 3;
     public int limit = 100;
     public float timeCoeff = 0.0f;
+    public long hangTime = 0;
+    public long monitorTime = 0;
     
     public Triple<Integer, Integer, Integer> cross = new Triple(0,1,0);
     public Triple<Integer, Integer, Integer> mutate = new Triple(0,1,0);
@@ -56,6 +58,7 @@ public class ParamsParser {
     public Triple<Integer, Integer, Integer> net = new Triple(0,1,0);
     //public double net = 0;
     
+    public int watcher = 1;
     public int sleep = 1001;
     public String experiment = "ExperimentName";
      
@@ -99,6 +102,9 @@ public class ParamsParser {
                 case "experiment":  experiment = paramsMap.get(param);                   break;
                 case "replicaFix":  replicaFixed = Boolean.valueOf(paramsMap.get(param));break;
                 case "sleep":       sleep = Integer.valueOf(paramsMap.get(param));       break;
+                case "watcher":     watcher = Integer.valueOf(paramsMap.get(param));     break;
+                case "hangTime":    hangTime = Long.valueOf(paramsMap.get(param));       break;
+                case "monitorTime": monitorTime = Long.valueOf(paramsMap.get(param));    break;
                 default: {
                     System.out.println("Paramter \"" + param + "\" is unknown");
                     System.exit(1);
@@ -132,8 +138,11 @@ public class ParamsParser {
         if (network > 0) sb.append(CMD.net.cmd(network));
         if (speed > 0) sb.append(CMD.cspd.cmd(speed));
         if (debug > 0) sb.append(CMD.debug.cmd(debug));
+        if (watcher == 0) sb.append(CMD.watcher.cmd(watcher));
+        if (hangTime > 0) sb.append(CMD.hangTime.cmd(hangTime));
+        if (monitorTime > 0) sb.append(CMD.monitorTime.cmd(monitorTime));
         
-         return sb.toString();
+        return sb.toString();
     }
     
     private Triple<Integer, Integer, Integer> parser(String s) {
@@ -205,6 +214,9 @@ public class ParamsParser {
         cspd("-cspd",   "\n\t network coefficient"),
         debug("-dbg",   "\n\t debug etra info"),
         exp("-exp",     "\n\t experiment name"),
+        watcher("-w",   "\n\t start watcher or not"),
+        hangTime("-ht", "\n\t hang time"),
+        monitorTime("-mt",   "\n\t monitor time"),
         
         // GA Starter
         r("-r",     "\n\t-r repeat"),
@@ -243,6 +255,7 @@ public class ParamsParser {
         public String cmd(String value) { return " " + name + " " + value; }
         public String cmd(int value)    { return cmd("" + value); }
         public String cmd(double value) { return cmd("" + value); }
+        public String cmd(long value)   { return cmd("" + value); }
         public String param() { return name; }
     }
 }

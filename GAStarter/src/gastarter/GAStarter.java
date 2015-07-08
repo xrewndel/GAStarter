@@ -20,7 +20,7 @@ import org.apache.log4j.PatternLayout;
  * @author Andrew
  */
 public class GAStarter {
-    private final static String version = "2.7";
+    private final static String version = "2.8";
     private static ExecutorService pool;
     private static ParamsParser prm;
     public static int totalExec = 0;
